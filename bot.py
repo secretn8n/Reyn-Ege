@@ -282,17 +282,22 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     # ── СЛУЧАЙНОЕ ──
+        # ── СЛУЧАЙНОЕ ──
     elif data == "random":
-        tasks = filter_tasks(uid)
+        # Сбрасываем фильтры, чтобы кнопка "Случайное задание" всегда была по-настоящему случайной
+        s["filter_num"] = None
+        s["filter_var"] = None
+        
+        # Теперь filter_tasks вернет полный список ALL_TASKS
+        tasks = filter_tasks(uid) 
+        
         if not tasks:
-            await q.edit_message_text(
-                "Нет заданий по выбранным фильтрам\\.",
-                parse_mode=ParseMode.MARKDOWN_V2,
-                reply_markup=main_menu_kb()
-            )
+            await q.edit_message_text("База заданий пуста\\.", parse_mode=ParseMode.MARKDOWN_V2, reply_markup=main_menu_kb())
             return
-        await send_task(update, context, random.choice(tasks))
-
+            
+        task = random.choice(tasks)
+        await send_task(update, context, task)
+        
     # ── ПО НОМЕРУ ──
     elif data == "by_number":
         await q.edit_message_text("Выбери номер задания:", reply_markup=number_select_kb())
